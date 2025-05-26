@@ -1,0 +1,19 @@
+body {
+    background-color: rgb(243, 240, 240);
+}
+
+.promedio-card {
+    width: 25%;
+}
+
+.promedio-header {
+    font-size: large;
+}
+
+.promedio-body {
+    font-size: x-large;
+}
+
+.form-container {
+    width: 25%;
+}
