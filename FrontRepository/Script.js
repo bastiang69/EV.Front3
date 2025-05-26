@@ -4,10 +4,10 @@ const tableBody = table.querySelector("tbody");
 const form = document.getElementById("studentForm");
 const averageDiv = document.getElementById("average");
 
-let editIndex = -1; // Variable para almacenar el índice del estudiante que se está editando
+let editIndex = -1;
 
-document.getElementById("studentForm").addEventListener("submit", function(e) {
-  e.preventDefault(); 
+document.getElementById("studentForm").addEventListener("submit", function (e) {
+  e.preventDefault();
 
   const firstName = document.getElementById("name").value.trim();
   const lastName = document.getElementById("lastName").value.trim();
@@ -19,21 +19,21 @@ document.getElementById("studentForm").addEventListener("submit", function(e) {
   }
 
   const student = {
-    firstName: firstName,
-    lastName: lastName,
-    grade: grade
+    firstName,
+    lastName,
+    grade
   };
 
   if (editIndex === -1) {
-    students.push(student);  // Si no estamos editando, agregar el estudiante
+    students.push(student);
   } else {
-    students[editIndex] = student;  // Si estamos editando, actualizamos el estudiante
-    editIndex = -1;  // Resetear la variable de edición
+    students[editIndex] = student;
+    editIndex = -1;
   }
 
   actualizarTabla();
-  calcularPromedio();
-  this.reset();
+  calcularEstadisticas();
+  form.reset();
 });
 
 tableBody.addEventListener("click", function (e) {
@@ -41,7 +41,7 @@ tableBody.addEventListener("click", function (e) {
     const index = parseInt(e.target.getAttribute("data-index"));
     students.splice(index, 1);
     actualizarTabla();
-    calcularPromedio();
+    calcularEstadisticas();
   } else if (e.target.classList.contains("editar-btn")) {
     const index = parseInt(e.target.getAttribute("data-index"));
     editarEstudiante(index);
@@ -53,13 +53,13 @@ function addStudentToTable(student, index) {
   row.innerHTML = `
     <td>${student.firstName}</td>
     <td>${student.lastName}</td>
-    <td>${student.grade}</td>
+    <td>${student.grade.toFixed(1)}</td>
     <td>
       <button class="btn btn-warning btn-sm editar-btn" data-index="${index}">
-        ✏️
+        ✏️ Editar
       </button>
       <button class="btn btn-danger btn-sm eliminar-btn" data-index="${index}">
-        🗑️
+        🗑️ Eliminar
       </button>
     </td>
   `;
@@ -68,33 +68,40 @@ function addStudentToTable(student, index) {
 
 function editarEstudiante(index) {
   const student = students[index];
-  
-  // Llenar el formulario con los datos del estudiante
   document.getElementById("name").value = student.firstName;
   document.getElementById("lastName").value = student.lastName;
   document.getElementById("grade").value = student.grade;
-
-  // Establecer el índice de edición
   editIndex = index;
 }
 
-function calcularPromedio() {
+function calcularEstadisticas() {
   if (students.length === 0) {
-    averageDiv.textContent = "0.00";
+    averageDiv.innerHTML = `
+      Promedio: 0.00<br>
+      Total de estudiantes: 0<br>
+      Aprobados: 0<br>
+      Reprobados: 0
+    `;
     return;
   }
 
-  const suma = students.reduce((acc, student) => acc + student.grade, 0);
-  const promedio = suma / students.length;
+  const total = students.length;
+  const aprobados = students.filter((s) => s.grade >= 4.0).length;
+  const reprobados = total - aprobados;
+  const suma = students.reduce((acc, s) => acc + s.grade, 0);
+  const promedio = suma / total;
 
-  averageDiv.textContent = `${promedio.toFixed(2)}`;
+  averageDiv.innerHTML = `
+    Promedio: <strong>${promedio.toFixed(2)}</strong><br>
+    Total de estudiantes: <strong>${total}</strong><br>
+    Aprobados: <strong>${aprobados}</strong><br>
+    Reprobados: <strong>${reprobados}</strong>
+  `;
 }
 
 function actualizarTabla() {
   tableBody.innerHTML = "";
-
   students.forEach((student, index) => {
     addStudentToTable(student, index);
   });
 }
-
